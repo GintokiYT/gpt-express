@@ -29,17 +29,25 @@ export const chatgpt = async (prompt: string) => {
 	const id = Number(completion.choices[0].message.content);
 
 	if(!isNaN(id)) {
-		let result = "";
 		const findQuestion = frequentQuestionsAll.find( question => question.id === id);
 		if(findQuestion) {
-			result += `${findQuestion.answer}`;
-			if(findQuestion.video) {
-				result += `<iframe class="w-full rounded-md" src="https://www.youtube.com/embed/${findQuestion.video}" frameborder="0" allowfullscreen="1" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+			let result = /* html */`
+				<div class="g-flex g-flex--column g-ins--c">
+					${findQuestion.answer}
+					${ findQuestion.video 
+					?  `<iframe class="g-w--full g-br--sm" src="https://www.youtube.com/embed/${findQuestion.video}" frameborder="0" allowfullscreen="1" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>` 
+					: "" }
+				</div>
+			`;
+			return {
+				message: result,
+				success: true
 			}
-			return result;
 		}
-
-		return "";
+		return {	
+			message: "<p>Sin respuesta</p>",
+			success: false
+		};
 	} else {
 		const completion = await openai.chat.completions.create({
 			messages: [
@@ -48,6 +56,9 @@ export const chatgpt = async (prompt: string) => {
 			model: "gpt-4o-mini",
 		});
 
-		return completion.choices[0].message.content;
+		return {
+			message: completion.choices[0].message.content,
+			success: false
+		};
 	}
 };

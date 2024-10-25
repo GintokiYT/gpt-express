@@ -26,3 +26,15 @@ export const createChat = async (
     throw new Error('Error creating chat');
   }
 }
+
+export const updateState = async (id: number, success: boolean) => {
+  try {
+    const updateChat = await prisma.chat.update({
+      where: { id },
+      data: { success }
+    });
+    return updateChat;
+  } catch (error) {
+    throw new Error('Error updating chat');
+  }
+}

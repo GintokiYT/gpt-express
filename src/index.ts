@@ -15,9 +15,9 @@ app.use('/api', router);
 
 app.post('/api/v1/chatgpt', async (req: Request, res: Response) => {
   const { message } = req.body;
-  console.log(req.body);
-  const content = await chatgpt(message);
-  res.json(content); 
+  // console.log(req.body);
+  const response = await chatgpt(message);
+  res.json(response); 
 });
 
 app.get('/', (req: Request, res: Response) => {
