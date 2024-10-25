@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Domain {
+  id        Int       @id @default(autoincrement())
+  domains   String    @unique @db.VarChar(200)
+  createdAt DateTime  @default(now())
+  deletedAt DateTime? @db.Timestamp(6)
+
+  questionHistories QuestionHistory[]
+  chats             Chat[]
+
+  @@index([domains])
+}
+
+model QuestionHistory {
+  id        Int       @id @default(autoincrement())
+  domainId  Int
+  domain    Domain    @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  name      String    @db.VarChar(200)
+  createdAt DateTime  @default(now())
+  deletedAt DateTime? @db.Timestamp(6)
+
+  chats Chat[]
+
+  @@index([name])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model Chat {
+  id                Int       @id @default(autoincrement())
+  domainId          Int
+  questionHistoryId Int
+  userId            String    @db.VarChar(40)
+  user              Json?
+  content           String?
+  type              String
+  success           Boolean
+  createdAt         DateTime  @default(now())
+  deletedAt         DateTime? @db.Timestamp(6)
+
+  domain          Domain          @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  questionHistory QuestionHistory @relation(fields: [questionHistoryId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([domainId])
+  @@index([type])
+  @@index([success])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
